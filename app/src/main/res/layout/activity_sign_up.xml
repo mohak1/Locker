@@ -7,7 +7,7 @@
     tools:context=".activities.SignUpActivity">
 
     <EditText
-        android:id="@+id/regno_edittext"
+        android:id="@+id/name_edittext"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
@@ -19,16 +19,16 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
-        android:id="@+id/name_edittext"
+        android:id="@+id/regno_edittext"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:ems="10"
         android:hint="Enter Reg. No."
-        app:layout_constraintEnd_toEndOf="@+id/regno_edittext"
-        app:layout_constraintStart_toStartOf="@+id/regno_edittext"
-        app:layout_constraintTop_toBottomOf="@+id/regno_edittext" />
-
+        app:layout_constraintEnd_toEndOf="@+id/name_edittext"
+        app:layout_constraintStart_toStartOf="@+id/name_edittext"
+        app:layout_constraintTop_toBottomOf="@+id/name_edittext" />
+    
     <EditText
         android:id="@+id/email_edittext"
         android:layout_width="wrap_content"
@@ -37,9 +37,9 @@
         android:ems="10"
         android:inputType="textEmailAddress"
         android:hint="Enter your SRM Email"
-        app:layout_constraintEnd_toEndOf="@+id/name_edittext"
-        app:layout_constraintStart_toStartOf="@+id/name_edittext"
-        app:layout_constraintTop_toBottomOf="@+id/name_edittext" />
+        app:layout_constraintEnd_toEndOf="@+id/regno_edittext"
+        app:layout_constraintStart_toStartOf="@+id/regno_edittext"
+        app:layout_constraintTop_toBottomOf="@+id/regno_edittext" />
 
     <EditText
         android:id="@+id/password_edittext"

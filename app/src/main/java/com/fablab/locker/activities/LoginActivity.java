@@ -10,19 +10,15 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.fablab.locker.Helper;
 import com.fablab.locker.R;
+import com.fablab.locker.SharedPref;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
 
 public class LoginActivity extends AppCompatActivity {
-
-    private Firebase mRootRef, mUserRef, mLockerRef;
-
-    private static final String ROOT_URL = "https://digilocker-dc8c1.firebaseio.com/";
-    private static final String LOCKER_URL = "https://digilocker-dc8c1.firebaseio.com/Locker";
-    private static final String  USER_URL = "https://digilocker-dc8c1.firebaseio.com/User";
 
     private EditText regNoEditText, passwordEditText;
     private Button loginButton, signupButton;
@@ -32,9 +28,8 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        mRootRef = new Firebase(ROOT_URL);
-        mUserRef = new Firebase(USER_URL);
-        mLockerRef = new Firebase(LOCKER_URL);
+        SharedPref.init(getApplicationContext());
+        Helper.firebaseInit();
 
         regNoEditText = findViewById(R.id.regno_edittext);
         passwordEditText = findViewById(R.id.password_edittext);
@@ -63,7 +58,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void login(final String regNo, final String password) {
-        mUserRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        Helper.mUserRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Log.d("DataSnapshot Data: ", dataSnapshot.toString());
@@ -74,6 +69,15 @@ public class LoginActivity extends AppCompatActivity {
                         Log.d("Username: ", regNo + password);
                         Log.d("Snap", dataSnapshot.child(regNo).child("password").getValue().toString());
                         if(dataSnapshot.child(regNo).child("password").getValue().equals(password)) {
+                            SharedPref.write(SharedPref.NAME, dataSnapshot.child(regNo).child("name").getValue().toString());
+                            SharedPref.write(SharedPref.REGNO, regNo);
+                            SharedPref.write(SharedPref.EMAIL, dataSnapshot.child(regNo).child("email").getValue().toString());
+                            SharedPref.write(SharedPref.PHONE, dataSnapshot.child(regNo).child("phone").getValue().toString());
+                            try {
+                                SharedPref.write(SharedPref.LOCKER, dataSnapshot.child(regNo).child("locker").getValue().toString());
+                            } catch (Exception e) {
+                                SharedPref.write(SharedPref.LOCKER, "");
+                            }
                             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                             startActivity(intent);
                             finish();

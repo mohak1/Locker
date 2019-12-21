@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.fablab.locker.R;
+import com.fablab.locker.SharedPref;
 
 import io.github.dreierf.materialintroscreen.MaterialIntroActivity;
 import io.github.dreierf.materialintroscreen.MessageButtonBehaviour;
@@ -19,26 +20,13 @@ public class IntroActivity extends MaterialIntroActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //editor = getSharedPreferences(MY_PREF, MODE_PRIVATE).edit();
+        SharedPref.init(getApplicationContext());
 
-        //mSharedPreferences = getSharedPreferences(MY_PREF, MODE_PRIVATE);
+        if(SharedPref.read(SharedPref.REGNO, null) != null) {
+            startActivity(new Intent(IntroActivity.this, LoginActivity.class));
+            finish();
+        }
 
-        //String json = mSharedPreferences.getString("a", "");
-        //String intro = mSharedPreferences.getString("intro", "");
-
-//        if ("Something".equals("3")) {
-//            if ("" != null) {
-//                if ("Something".equals("1")) {
-////                    Intent intent = new Intent(IntroActivity.this, HomeActivity.class);
-////                    startActivity(intent);
-////                    finish();
-//                }
-//            } else {
-//                Intent intent = new Intent(IntroActivity.this, MainActivity.class);
-//                startActivity(intent);
-//                finish();
-//            }
-//        }
         addSlide(new SlideFragmentBuilder()
                 .backgroundColor(R.color.colorPrimary)
                 .buttonsColor(R.color.colorPrimaryDark)
