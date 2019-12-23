@@ -14,6 +14,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.fablab.locker.Helper;
+import com.fablab.locker.SharedPref;
 import com.google.zxing.Result;
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
 import static android.Manifest.permission.CAMERA;
@@ -27,6 +29,9 @@ public class ScanQRCodeActivity extends AppCompatActivity implements ZXingScanne
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.e("onCreate", "onCreate");
+
+        Helper.firebaseInit();
+        SharedPref.init(getApplicationContext());
 
         mScannerView = new ZXingScannerView(this);
         setContentView(mScannerView);
@@ -115,27 +120,42 @@ public class ScanQRCodeActivity extends AppCompatActivity implements ZXingScanne
 
     @Override
     public void handleResult(Result rawResult) {
-        final String result = rawResult.getText();
-        Log.d("QRCodeScanner", rawResult.getText());
-        Log.d("QRCodeScanner", rawResult.getBarcodeFormat().toString());
+        if(SharedPref.read(SharedPref.QR, null).equals(rawResult.getText())) {
+            String lockerId = SharedPref.read(SharedPref.LOCKER, null);
+            Helper.mLockerRef.child(lockerId).child("locked").setValue("0");
+            showToast("Locker successfully unlocked");
+            startActivity(new Intent(ScanQRCodeActivity.this, MainActivity.class));
+            finish();
+        } else {
+            showToast("The QR code does not match your locker!");
+            mScannerView.resumeCameraPreview(ScanQRCodeActivity.this);
+        }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Scan Result");
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                mScannerView.resumeCameraPreview(ScanQRCodeActivity.this);
-            }
-        });
-        builder.setNeutralButton("Visit", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(result));
-                startActivity(browserIntent);
-            }
-        });
-        builder.setMessage(rawResult.getText());
-        AlertDialog alert1 = builder.create();
-        alert1.show();
+//        final String result = rawResult.getText();
+//        Log.d("QRCodeScanner", rawResult.getText());
+//        Log.d("QRCodeScanner", rawResult.getBarcodeFormat().toString());
+//
+//        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+//        builder.setTitle("Scan Result");
+//        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+//            @Override
+//            public void onClick(DialogInterface dialog, int which) {
+//                mScannerView.resumeCameraPreview(ScanQRCodeActivity.this);
+//            }
+//        });
+//        builder.setNeutralButton("Visit", new DialogInterface.OnClickListener() {
+//            @Override
+//            public void onClick(DialogInterface dialog, int which) {
+//                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(result));
+//                startActivity(browserIntent);
+//            }
+//        });
+//        builder.setMessage(rawResult.getText());
+//        AlertDialog alert1 = builder.create();
+//        alert1.show();
+    }
+
+    public void showToast(String str) {
+        Toast.makeText(this, str, Toast.LENGTH_LONG).show();
     }
 }

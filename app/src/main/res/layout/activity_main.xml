@@ -52,4 +52,15 @@
         app:layout_constraintStart_toStartOf="@+id/openlocker_button"
         app:layout_constraintTop_toBottomOf="@+id/openlocker_button"/>
 
+    <Button
+        android:id="@+id/invalidatelocker_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Invalidate Locker"
+        android:layout_marginTop="16dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="@+id/locklocker_button"
+        app:layout_constraintStart_toStartOf="@+id/locklocker_button"
+        app:layout_constraintTop_toBottomOf="@+id/locklocker_button"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -107,6 +107,10 @@ public class SignUpActivity extends AppCompatActivity {
         userRef.child("email").setValue(email);
         userRef.child("password").setValue(password);
         userRef.child("phone").setValue(phoneNo);
+        showToast("Signup successful, login to proceed");
+        Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     //TODO : Complete this method

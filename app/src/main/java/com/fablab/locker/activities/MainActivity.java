@@ -26,7 +26,7 @@ import com.firebase.client.ValueEventListener;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button getALockerButton, lockButton, openButton;
+    Button getALockerButton, lockButton, openButton, invalidateButton;
     TextView lockerStatusTextView;
 
     @Override
@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
         getALockerButton = findViewById(R.id.getalocker_button);
         lockButton = findViewById(R.id.locklocker_button);
         openButton = findViewById(R.id.openlocker_button);
+        invalidateButton = findViewById(R.id.invalidatelocker_button);
 
         if(SharedPref.read(SharedPref.LOCKER, null) == null || SharedPref.read(SharedPref.LOCKER, null).equals("")) {
             setLockerNotAvailableLayout();
@@ -68,6 +69,13 @@ public class MainActivity extends AppCompatActivity {
                 unlockLocker();
             }
         });
+
+        invalidateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                invalidateLocker();
+            }
+        });
     }
 
     @Override
@@ -91,12 +99,25 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void lockLocker() {
-
+        //Intent intent = new Intent(MainActivity.this, ScanQRCodeActivity.class);
+        //startActivity(intent);
     }
 
     private void unlockLocker() {
         Intent intent = new Intent(MainActivity.this, ScanQRCodeActivity.class);
         startActivity(intent);
+    }
+
+    private void invalidateLocker() {
+        String regNo = SharedPref.read(SharedPref.REGNO, null);
+        String lockerId = SharedPref.read(SharedPref.LOCKER, null);
+        Helper.mLockerRef.child(lockerId).child("assigned_to").setValue("");
+        Helper.mLockerRef.child(lockerId).child("locked").setValue("0");
+        Helper.mUserRef.child(regNo).child("locker").setValue("");
+        SharedPref.write(SharedPref.LOCKER, "");
+        SharedPref.write(SharedPref.QR, "");
+        setLockerNotAvailableLayout();
+        showToast("Locker Invalidated");
     }
 
     private void checkLockerAvailable() {
@@ -112,6 +133,7 @@ public class MainActivity extends AppCompatActivity {
                         lockerId = ds.getKey();
                         isLockerAvailable = true;
                         Log.d("Assigned to: ", ds.child("assigned_to").getValue().toString());
+
                         break;
                     }
                 }
@@ -166,7 +188,10 @@ public class MainActivity extends AppCompatActivity {
     private void bookALocker(String lockerId) {
         String regNo = SharedPref.read(SharedPref.REGNO, null);
         Helper.mLockerRef.child(lockerId).child("assigned_to").setValue(regNo);
+        Helper.mLockerRef.child(lockerId).child("locked").setValue("1");
         Helper.mUserRef.child(regNo).child("locker").setValue(lockerId);
+        saveQrCode(lockerId);
+//        String qr = Helper.mLockerRef.child(lockerId).child("qr").toString();
         SharedPref.write(SharedPref.LOCKER, lockerId);
         setLockerAvailableLayout();
         showToast("Locker " + lockerId + " Booked!");
@@ -177,17 +202,34 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setLockerAvailableLayout() {
-        getALockerButton.setVisibility(View.INVISIBLE);
+        getALockerButton.setVisibility(View.GONE);
         lockButton.setVisibility(View.VISIBLE);
         openButton.setVisibility(View.VISIBLE);
+        invalidateButton.setVisibility(View.VISIBLE);
         lockerStatusTextView.setText("You are assigned locker number " + SharedPref.read(SharedPref.LOCKER, ""));
     }
 
     private void setLockerNotAvailableLayout() {
         getALockerButton.setVisibility(View.VISIBLE);
-        lockButton.setVisibility(View.INVISIBLE);
-        openButton.setVisibility(View.INVISIBLE);
+        lockButton.setVisibility(View.GONE);
+        openButton.setVisibility(View.GONE);
+        invalidateButton.setVisibility(View.GONE);
         lockerStatusTextView.setText("You don't have a locker");
+    }
+
+    private void saveQrCode(final String lockerId) {
+        Helper.mLockerRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String qr = dataSnapshot.child(lockerId).child("qr").getValue().toString();
+                SharedPref.write(SharedPref.QR, qr);
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+                showToast("Something went wrong, please try again later.");
+            }
+        });
     }
 
     private void logout() {
@@ -197,6 +239,8 @@ public class MainActivity extends AppCompatActivity {
         SharedPref.write(SharedPref.PHONE, "");
         SharedPref.write(SharedPref.LOCKER, "");
         SharedPref.write(SharedPref.QR, "");
+
+        showToast("Successfully logged out");
 
         Intent intent = new Intent(MainActivity.this, LoginActivity.class);
         startActivity(intent);
