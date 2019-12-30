@@ -2,6 +2,7 @@ package com.fablab.locker.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -22,6 +23,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private EditText regNoEditText, passwordEditText;
     private Button loginButton, signupButton;
+    private ProgressDialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +32,15 @@ public class LoginActivity extends AppCompatActivity {
 
         SharedPref.init(getApplicationContext());
         Helper.firebaseInit();
+
+        dialog = new ProgressDialog(this); // this = YourActivity
+        dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        dialog.setTitle("Logging in");
+        dialog.setMessage("Please wait while we log you in");
+        dialog.setIndeterminate(true);
+        dialog.setCanceledOnTouchOutside(false);
+
+        checkIsLoggedIn();
 
         regNoEditText = findViewById(R.id.regno_edittext);
         passwordEditText = findViewById(R.id.password_edittext);
@@ -58,6 +69,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void login(final String regNo, final String password) {
+        dialog.show();
         Helper.mUserRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -71,10 +83,13 @@ public class LoginActivity extends AppCompatActivity {
                         if(dataSnapshot.child(regNo).child("password").getValue().equals(password)) {
                             SharedPref.write(SharedPref.NAME, dataSnapshot.child(regNo).child("name").getValue().toString());
                             SharedPref.write(SharedPref.REGNO, regNo);
+                            SharedPref.write(SharedPref.PASSWORD, password);
                             SharedPref.write(SharedPref.EMAIL, dataSnapshot.child(regNo).child("email").getValue().toString());
                             SharedPref.write(SharedPref.PHONE, dataSnapshot.child(regNo).child("phone").getValue().toString());
                             try {
-                                SharedPref.write(SharedPref.LOCKER, dataSnapshot.child(regNo).child("locker").getValue().toString());
+                                String lockerId = dataSnapshot.child(regNo).child("locker").getValue().toString();
+                                SharedPref.write(SharedPref.LOCKER, lockerId);
+                                saveQrCode(lockerId);
                             } catch (Exception e) {
                                 SharedPref.write(SharedPref.LOCKER, "");
                             }
@@ -84,10 +99,12 @@ public class LoginActivity extends AppCompatActivity {
                         } else {
                             showToast("Wrong Password");
                         }
+                        dialog.dismiss();
                     }
                 }
                 if(!contains) {
                     showToast("Account does not exist");
+                    dialog.dismiss();
                 }
             }
 
@@ -96,6 +113,34 @@ public class LoginActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    private void saveQrCode(final String lockerId) {
+        Helper.mLockerRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                try {
+                    //Only if QR is not null
+                    String qr = dataSnapshot.child(lockerId).child("qr").getValue().toString();
+                    SharedPref.write(SharedPref.QR, qr);
+                } catch (Exception e) {
+                    //Do nothing
+                }
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+                showToast("Something went wrong, please try again later.");
+            }
+        });
+    }
+
+    private void checkIsLoggedIn() {
+        String regNo = SharedPref.read(SharedPref.REGNO, null);
+        String password = SharedPref.read(SharedPref.PASSWORD, null);
+        if (!(regNo == null || regNo.equals("") || password == null || password.equals(""))) {
+            login(regNo, password);
+        }
     }
 
     public void showToast(String str) {

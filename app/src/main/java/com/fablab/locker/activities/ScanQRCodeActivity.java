@@ -120,10 +120,13 @@ public class ScanQRCodeActivity extends AppCompatActivity implements ZXingScanne
 
     @Override
     public void handleResult(Result rawResult) {
+        showToast(rawResult.getText());
+        showToast(SharedPref.read(SharedPref.QR, null));
+        Log.d("ImpInfo", rawResult.getText() + " : " + SharedPref.read(SharedPref.QR, null));
         if(SharedPref.read(SharedPref.QR, null).equals(rawResult.getText())) {
             String lockerId = SharedPref.read(SharedPref.LOCKER, null);
             Helper.mLockerRef.child(lockerId).child("locked").setValue("0");
-            showToast("Locker successfully unlocked");
+            showToast("Locker unlocked successfully");
             startActivity(new Intent(ScanQRCodeActivity.this, MainActivity.class));
             finish();
         } else {

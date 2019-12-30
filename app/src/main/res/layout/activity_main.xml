@@ -10,7 +10,7 @@
         android:id="@+id/lockerstatus_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="You don't have a locker"
+        android:text="Locker Status"
         android:textColor="#000000"
         android:textSize="20sp"
         android:layout_marginTop="32dp"
@@ -25,32 +25,32 @@
         android:layout_marginTop="32dp"
         android:text="Get a locker"
         app:layout_constraintEnd_toEndOf="@+id/lockerstatus_textview"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintStart_toStartOf="@+id/lockerstatus_textview"
         app:layout_constraintTop_toBottomOf="@+id/lockerstatus_textview" />
 
-    <Button
-        android:id="@+id/openlocker_button"
+    <TextView
+        android:id="@+id/lockstatus_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Open locker"
+        android:text="Lock Status"
+        android:textColor="#000000"
+        android:textSize="20sp"
         android:layout_marginTop="32dp"
         android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="@+id/lockerstatus_textview"
         app:layout_constraintStart_toStartOf="@+id/lockerstatus_textview"
-        app:layout_constraintTop_toBottomOf="@+id/lockerstatus_textview" />
-
+        app:layout_constraintEnd_toEndOf="@+id/lockerstatus_textview"
+        app:layout_constraintTop_toBottomOf="@+id/lockerstatus_textview"
+        />
     <Button
-        android:id="@+id/locklocker_button"
+        android:id="@+id/togglelocker_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Lock locker"
-        android:layout_marginTop="16dp"
+        android:text="Toggle Locker"
+        android:layout_marginTop="32dp"
         android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="@+id/openlocker_button"
-        app:layout_constraintStart_toStartOf="@+id/openlocker_button"
-        app:layout_constraintTop_toBottomOf="@+id/openlocker_button"/>
+        app:layout_constraintEnd_toEndOf="@+id/lockstatus_textview"
+        app:layout_constraintStart_toStartOf="@+id/lockstatus_textview"
+        app:layout_constraintTop_toBottomOf="@+id/lockstatus_textview" />
 
     <Button
         android:id="@+id/invalidatelocker_button"
@@ -59,8 +59,8 @@
         android:text="Invalidate Locker"
         android:layout_marginTop="16dp"
         android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="@+id/locklocker_button"
-        app:layout_constraintStart_toStartOf="@+id/locklocker_button"
-        app:layout_constraintTop_toBottomOf="@+id/locklocker_button"/>
+        app:layout_constraintEnd_toEndOf="@+id/togglelocker_button"
+        app:layout_constraintStart_toStartOf="@+id/togglelocker_button"
+        app:layout_constraintTop_toBottomOf="@+id/togglelocker_button"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
