@@ -122,7 +122,8 @@ public class MainActivity extends AppCompatActivity {
         String regNo = SharedPref.read(SharedPref.REGNO, null);
         String lockerId = SharedPref.read(SharedPref.LOCKER, null);
         Helper.mLockerRef.child(lockerId).child("assigned_to").setValue("");
-        Helper.mLockerRef.child(lockerId).child("locked").setValue("0");
+        //TODO Change "-1" to "0" later if required. Changed to fix the hardware issue.
+        Helper.mLockerRef.child(lockerId).child("locked").setValue("-1");
         Helper.mUserRef.child(regNo).child("locker").setValue("");
         SharedPref.write(SharedPref.LOCKER, "");
         SharedPref.write(SharedPref.QR, "");
@@ -198,10 +199,10 @@ public class MainActivity extends AppCompatActivity {
     private void bookALocker(String lockerId) {
         String regNo = SharedPref.read(SharedPref.REGNO, null);
         Helper.mLockerRef.child(lockerId).child("assigned_to").setValue(regNo);
-        Helper.mLockerRef.child(lockerId).child("locked").setValue("1");
+        //TODO uncomment this later if required. Commented to fix the hardware issue.
+//        Helper.mLockerRef.child(lockerId).child("locked").setValue("1");
         Helper.mUserRef.child(regNo).child("locker").setValue(lockerId);
         saveQrCode(lockerId);
-//        String qr = Helper.mLockerRef.child(lockerId).child("qr").toString();
         SharedPref.write(SharedPref.LOCKER, lockerId);
         setLockerAvailableLayout();
         setLockedLayout();
@@ -266,7 +267,9 @@ public class MainActivity extends AppCompatActivity {
                         if (dataSnapshot.child(lockerId).child("locked").getValue().equals("0")) {
                             isLocked = false;
                             setUnlockedLayout();
-                        } else if (dataSnapshot.child(lockerId).child("locked").getValue().equals("1")) {
+                        }
+                        //TODO remove the second condition in elseif if required. Added to fix the hardware issue.
+                        else if (dataSnapshot.child(lockerId).child("locked").getValue().equals("1") || dataSnapshot.child(lockerId).child("locked").getValue().equals("-1")) {
                             isLocked = true;
                             setLockedLayout();
                         }
